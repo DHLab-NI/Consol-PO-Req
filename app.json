@@ -1,0 +1,32 @@
+{
+  "id": "65359388-1596-40f5-91c1-38c6a4a134bd",
+  "name": "Consol PO Req",
+  "publisher": "DHLab",
+  "version": "1.0.0.0",
+  "brief": "Consolidated POs from Reqs",
+  "description": "Produce consolidated purchase orders from Requisitions",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "18.0.0.0",
+  "idRanges": [
+    {
+      "from": 50100,
+      "to": 50119
+    }
+  ],
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": true
+  },
+  "runtime": "13.0",
+  "features": [
+    "NoImplicitWith"
+  ]
+}
