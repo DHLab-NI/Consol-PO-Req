@@ -72,7 +72,7 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         PurchasingCode: Record Purchasing;
         TempDocumentEntry: Record "Document Entry" temporary;
         TempPurchaseOrderToPrint: Record "Purchase Header" temporary;
-        ReqWkshMakeOrders: Codeunit "Req. Wksh.-Make Order";
+        ReqWkshMakeOrders: Codeunit "Req. Wksh.-Make Order2";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ReqLineReserve: Codeunit "Req. Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -95,6 +95,8 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         Month: Integer;
         CounterFailed: Integer;
         PrevPurchCode: Code[10];
+        // Add PrevAddToPONo to check if Add-To PO number has changed
+        PrevAddToPONo: Code[20];
         PrevShipToCode: Code[10];
         Text010: Label 'must match %1 on Sales Order %2, Line %3', Comment = '%1 = field caption, %2 = number of document, %3 = number of line';
         PrevChangedDocOrderType: Option;
@@ -511,6 +513,7 @@ codeunit 50104 "Req. Wksh.-Make Order2"
           LineCount,
           NextLineNo,
           PrevPurchCode,
+          PrevAddToPONo,
           PrevShipToCode,
           PrevLocationCode,
           OrderCounter,
@@ -524,6 +527,7 @@ codeunit 50104 "Req. Wksh.-Make Order2"
               LineCount,
               NextLineNo,
               PrevPurchCode,
+              PrevAddToPONo,
               PrevShipToCode,
               PrevLocationCode,
               OrderCounter,
@@ -638,6 +642,11 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         DimensionSetIDArr: array[10] of Integer;
         IsHandled: Boolean;
+        // SGH Temp PLHeader record to test if valid Add-to PO exists
+        AddToPurchOrderHeader: Record "Purchase Header";
+        // SGH Temp POLines record to count existing lines
+        AddToPurchOrderLines: Record "Purchase Line";
+        ValidAddToPO: Boolean;
     begin
         IsHandled := false;
         OnBeforeInsertPurchOrderLine(ReqLine2, PurchOrderHeader, NextLineNo, IsHandled, PrevPurchCode, PrevShipToCode, PlanningResiliency, TempDocumentEntry, SuppressCommit,
@@ -648,15 +657,47 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         if (ReqLine2."No." = '') or (ReqLine2."Vendor No." = '') or (ReqLine2.Quantity = 0) then
             exit;
 
+        //SGH Look for valid Add-to purchase order
+        ValidAddToPO := false;
+        if ReqLine2."Add-to Purchase Order No." <> '' then begin
+            Clear(AddToPurchOrderHeader);
+            AddToPurchOrderHeader.SetRange(Status, AddToPurchOrderHeader.Status::Open);
+            AddToPurchOrderHeader.SetRange("No.", ReqLine2."Add-to Purchase Order No.");
+            If AddToPurchOrderHeader.FindFirst() then ValidAddToPO := true;
+        end;
+        //SGH END
+
         if CheckInsertFinalizePurchaseOrderHeader(ReqLine2, PurchOrderHeader, true) then begin
             IsHandled := false;
             OnInsertPurchOrderLineOnBeforeInsertHeader(ReqLine2, PurchOrderHeader, PurchOrderLine, LineCount, NextLineNo, IsHandled);
             if not IsHandled then begin
-                InsertHeader(ReqLine2);
-                LineCount := 0;
-                NextLineNo := 0;
+                //SGH Add condition based on Valid Add-to PO
+                if not ValidAddToPO then begin
+                    InsertHeader(ReqLine2);
+                    LineCount := 0;
+                    NextLineNo := 0;
+                    //SGH Set current PO header to Add-to PO Header and update POLine variables
+                end else begin
+                    // SGH Set current PO header to Add-to PO Header
+                    Clear(PurchOrderHeader);
+                    PurchOrderHeader := AddToPurchOrderHeader;
+                    //SGH Calculate LineCount, OrderCounter and find NextLineNo.
+                    Clear(AddToPurchOrderLines);
+                    AddToPurchOrderLines.SetRange("Document No.", PurchOrderHeader."No.");
+                    AddToPurchOrderLines.SetRange("Document Type", PurchOrderHeader."Document Type"::Order);
+                    LineCount := AddToPurchOrderLines.Count();
+                    OrderCounter := OrderCounter + 1;
+                    if not PlanningResiliency then
+                        if not HideProgressWindow then
+                            Window.Update(3, OrderCounter);
+                    if AddToPurchOrderLines.FindLast() then
+                        NextLineNo := AddToPurchOrderLines."Line No." else
+                        NextLineNo := 0;
+                end;
             end;
             PrevPurchCode := ReqLine2."Purchasing Code";
+            //SGH update per Add-to PO No.
+            PrevAddToPONo := ReqLine2."Add-to Purchase Order No.";
             PrevShipToCode := ReqLine2."Ship-to Code";
             PrevLocationCode := ReqLine2."Location Code";
         end;
@@ -941,6 +982,8 @@ codeunit 50104 "Req. Wksh.-Make Order2"
             // SGH           ReqLine2.SetRange("Order Address Code", PurchOrderHeader."Order Address Code");
             ReqLine2.SetRange("Currency Code", PurchOrderHeader."Currency Code");
             ReqLine2.SetRange("Purchasing Code", PrevPurchCode);
+            // SGH SGHTEST add PrevAddToPONo to filters
+            ReqLine2.SetRange("Add-to Purchase Order No.", PrevAddToPONo);
             IsHandled := false;
             OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(ReqLine2, PurchOrderHeader, IsHandled, TempFailedReqLine);
             if not IsHandled then
@@ -1091,13 +1134,15 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         OnAfterReserveBindingOrderToPurch(PurchLine, ReqLine, ReservQty, ReservQtyBase, SuppressCommit);
     end;
 
-    procedure SetTryParam(TryReqTemplate: Record "Req. Wksh. Template"; TryLineCount: Integer; TryNextLineNo: Integer; TryPrevPurchCode: Code[10]; TryPrevShipToCode: Code[10]; TryPrevLocationCode: Code[10]; TryOrderCounter: Integer; TryOrderLineCounter: Integer; var TryFailedReqLine: Record "Requisition Line"; var TempDocumentEntryNew: Record "Document Entry" temporary)
+    procedure SetTryParam(TryReqTemplate: Record "Req. Wksh. Template"; TryLineCount: Integer; TryNextLineNo: Integer; TryPrevPurchCode: Code[10]; TryPrevAddToPONo: Code[20]; TryPrevShipToCode: Code[10]; TryPrevLocationCode: Code[10]; TryOrderCounter: Integer; TryOrderLineCounter: Integer; var TryFailedReqLine: Record "Requisition Line"; var TempDocumentEntryNew: Record "Document Entry" temporary)
     begin
         SetPlanningResiliency();
         ReqTemplate := TryReqTemplate;
         LineCount := TryLineCount;
         NextLineNo := TryNextLineNo;
         PrevPurchCode := TryPrevPurchCode;
+        //SGHTEST add Previous Add-to PO No. to text
+        PrevAddToPONo := TryPrevAddToPONo;
         PrevShipToCode := TryPrevShipToCode;
         PrevLocationCode := TryPrevLocationCode;
         OrderCounter := TryOrderCounter;
@@ -1110,12 +1155,14 @@ codeunit 50104 "Req. Wksh.-Make Order2"
             until TryFailedReqLine.Next() = 0;
     end;
 
-    procedure GetTryParam(var TryPurchOrderHeader: Record "Purchase Header"; var TryLineCount: Integer; var TryNextLineNo: Integer; var TryPrevPurchCode: Code[10]; var TryPrevShipToCode: Code[10]; var TryPrevLocationCode: Code[10]; var TryOrderCounter: Integer; var TryOrderLineCounter: Integer)
+    procedure GetTryParam(var TryPurchOrderHeader: Record "Purchase Header"; var TryLineCount: Integer; var TryNextLineNo: Integer; var TryPrevPurchCode: Code[10]; var TryPrevAddToPONo: Code[20]; var TryPrevShipToCode: Code[10]; var TryPrevLocationCode: Code[10]; var TryOrderCounter: Integer; var TryOrderLineCounter: Integer)
     begin
         TryPurchOrderHeader.Copy(PurchOrderHeader);
         TryLineCount := LineCount;
         TryNextLineNo := NextLineNo;
         TryPrevPurchCode := PrevPurchCode;
+        //SGHTEST add Previous Add-to PO No. to text
+        TryPrevAddToPONo := PrevAddToPONo;
         TryPrevShipToCode := PrevShipToCode;
         TryPrevLocationCode := PrevLocationCode;
         TryOrderCounter := OrderCounter;
@@ -1238,11 +1285,17 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         if IsHandled then
             exit;
 
+        // SGH Change Req line sort key to take into account "Action Message" which is set to " " when an Add-to PO No. is specified.
         RequisitionLine.SetCurrentKey(
-              "Worksheet Template Name", "Journal Batch Name", "Vendor No.",
-              "Sell-to Customer No.", "Ship-to Code", "Order Address Code", "Currency Code",
-              "Ref. Order Type", "Ref. Order Status", "Ref. Order No.",
-              "Transfer-from Code", "Purchasing Code");
+                "Worksheet Template Name", "Journal Batch Name", "Vendor No.",
+                "Order Address Code", "Currency Code", "Ref. Order Type",
+                "Ref. Order Status", "Ref. Order No.", "Location Code",
+                "Transfer-from Code", "Purchasing Code", "Action Message");
+        /*              "Worksheet Template Name", "Journal Batch Name", "Vendor No.",
+                      "Sell-to Customer No.", "Ship-to Code", "Order Address Code", "Currency Code",
+                      "Ref. Order Type", "Ref. Order Status", "Ref. Order No.",
+                      "Transfer-from Code", "Purchasing Code");
+        */
     end;
 
     procedure CheckAddressDetails(SalesOrderNo: Code[20]; SalesLineNo: Integer; UpdateAddressDetails: Boolean) Result: Boolean
@@ -1291,7 +1344,12 @@ codeunit 50104 "Req. Wksh.-Make Order2"
     var
         CheckInsert: Boolean;
         CheckAddressDetailsResult: Boolean;
+        ChkAddToPurchOrderHeader: Record "Purchase Header";
     begin
+        // SGH Set temporary PO header record to find a valid Add-to to purchase order
+        ChkAddToPurchOrderHeader.SetRange(Status, ChkAddToPurchOrderHeader.Status::Open);
+        ChkAddToPurchOrderHeader.SetRange("No.", RequisitionLine."Add-to Purchase Order No.");
+        // SGH END
         CheckAddressDetailsResult := CheckAddressDetails(RequisitionLine."Sales Order No.", RequisitionLine."Sales Order Line No.", UpdateAddressDetails);
         CheckInsert :=
               (PurchOrderHeader."Buy-from Vendor No." <> RequisitionLine."Vendor No.") or // If true then new PO is created
@@ -1300,7 +1358,12 @@ codeunit 50104 "Req. Wksh.-Make Order2"
                                                                                           // SGH             (PurchOrderHeader."Order Address Code" <> RequisitionLine."Order Address Code") or
               (PurchOrderHeader."Currency Code" <> RequisitionLine."Currency Code") or // If true then new PO is created
               (PrevPurchCode <> RequisitionLine."Purchasing Code") or // SGH Purchasing code can be used to create a separate purchase order for a sales order. 
-              CheckAddressDetailsResult; // If true then new PO is created
+                                                                      // SGH Add criteria to check if Add-to PO No. has changed, then return True
+              (PrevAddToPONo <> RequisitionLine."Add-to Purchase Order No.") or
+              ((RequisitionLine."Add-to Purchase Order No." <> '') and
+                        (PurchOrderHeader."No." <> RequisitionLine."Add-to Purchase Order No.") and
+                        ChkAddToPurchOrderHeader.FindFirst()) or
+              CheckAddressDetailsResult; // If true then new PO is created (SGH or check for existing PO)
 
         OnBeforeCheckInsertFinalizePurchaseOrderHeader(
             RequisitionLine, PurchOrderHeader, CheckInsert, OrderCounter, PrevPurchCode, PrevLocationCode, PrevShipToCode, UpdateAddressDetails, CheckAddressDetailsResult, ReceiveDateReq);
@@ -1369,6 +1432,8 @@ codeunit 50104 "Req. Wksh.-Make Order2"
     begin
         PrevShipToCode := '';
         PrevPurchCode := '';
+        //SGH Add Add-to PO No variable
+        PrevAddToPONo := '';
         PrevLocationCode := '';
         NameAddressDetails := '';
     end;
