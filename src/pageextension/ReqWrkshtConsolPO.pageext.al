@@ -71,10 +71,19 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
             {
                 ApplicationArea = Planning;
                 Visible = true;
-                ToolTip = 'Choose an existing Open Purchase Order to add this line to';
                 Lookup = true;
             }
         }
+
+        addafter("Vendor No.")
+        {
+            field("Back-to-back Order"; Rec."Back-to-back Order")
+            {
+                ApplicationArea = Planning;
+                Visible = true;
+            }
+        }
+
 
         //Specify position of freeze column
         modify(Control1)

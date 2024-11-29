@@ -1363,6 +1363,7 @@ codeunit 50104 "Req. Wksh.-Make Order2"
               ((RequisitionLine."Add-to Purchase Order No." <> '') and
                         (PurchOrderHeader."No." <> RequisitionLine."Add-to Purchase Order No.") and
                         ChkAddToPurchOrderHeader.FindFirst()) or
+                        RequisitionLine."Back-to-back Order" or // Check if unique PO to be created for this line item
               CheckAddressDetailsResult; // If true then new PO is created (SGH or check for existing PO)
 
         OnBeforeCheckInsertFinalizePurchaseOrderHeader(
