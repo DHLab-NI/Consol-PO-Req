@@ -5,6 +5,7 @@ namespace Microsoft.Inventory.Item;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Purchases.Vendor;
+using Microsoft.Purchases.History;
 
 page 50101 "Item Requisition FactBox"
 {
@@ -56,6 +57,45 @@ page 50101 "Item Requisition FactBox"
                     Lookup = false;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
                 }
+                // SGH WIP Display Last purchase details
+
+                // New calculated fields
+                field("Last Purchase Price (FCY)"; LastPurchasePrice)
+                {
+                    ApplicationArea = Planning;
+                    Lookup = false;
+                    ToolTip = 'Shows the last purchase price of the item in the purchase currency.';
+                }
+                field("Purchase Currency"; PurchaseCurrency)
+                {
+                    ApplicationArea = Planning;
+                    Lookup = false;
+                    ToolTip = 'Specifies the currency code used for purchasing the item.';
+                }
+                field("Date of Last Purchase"; LastPurchaseDate)
+                {
+                    ApplicationArea = Planning;
+                    Lookup = false;
+                    ToolTip = 'Specifies the date of the last purchase of the item.';
+                }
+                field("Last Purchase Inv No."; LastPurchaseInvoice)
+                {
+                    ApplicationArea = Planning;
+                    Lookup = false;
+                    ToolTip = 'Specifies the Invoice No. of the last purchase of the item.';
+                    // Open Posted Purchase Invoice on drilldown
+                    DrillDown = true;
+                    trigger OnDrillDown()
+                    var
+                        PInvPage: Page "Posted Purchase Invoice";
+                        PInvRec: Record "Purch. Inv. Header";
+                    begin
+                        PInvRec.SetRange("No.", LastPurchaseInvoice);
+                        PInvRec.FindFirst();
+                        PInvPage.SetRecord(PInvRec);
+                        PInvPage.Run();
+                    end;
+                }
             }
 
             // SGH Add new Group re Availability (flowfields)
@@ -106,14 +146,57 @@ page 50101 "Item Requisition FactBox"
     {
     }
 
-    local procedure ShowDetails()
-    begin
-        Page.Run(Page::"Item Card", Rec);
-    end;
+    // SGH Variables for last purchase information
+    var
+        LastPurchasePrice: Decimal;
+        PurchaseCurrency: Code[10];
+        LastPurchaseDate: Date;
+        LastPurchaseInvoice: Code[20];
 
     trigger OnAfterGetRecord()
     begin
         //Rec.SETRANGE("Location Filter", Rec."Location Filter");
         Rec.CalcFields(Inventory, "Qty. on Sales Order");
+        //SGH Get last purchase details for item
+        FindLastPurchaseDetails;
     end;
+
+    // SGH Procedure for last purchase information
+
+    local procedure FindLastPurchaseDetails()
+    var
+        PurchInvLine: Record "Purch. Inv. Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        ItemVendor: Record Vendor;
+    begin
+        Clear(LastPurchasePrice);
+        Clear(PurchaseCurrency);
+        Clear(LastPurchaseDate);
+        Clear(LastPurchaseInvoice);
+        Clear(PurchInvLine);
+        Clear(ItemVendor);
+
+        // Set default purchase currency
+        if ItemVendor.get(rec."Vendor No.") then PurchaseCurrency := ItemVendor."Currency Code";
+
+        // Find all purchase invoice lines for the item
+        PurchInvLine.SetCurrentKey(Type, "No.", "Variant Code", "Posting Date");
+        PurchInvLine.SetRange("No.", Rec."No.");
+        PurchInvLine.SetFilter(Quantity, '>0');
+
+        if PurchInvLine.FindLast() then begin
+            if PurchInvHeader.Get(PurchInvLine."Document No.") then begin
+                LastPurchasePrice := (PurchInvLine."Line Amount" / PurchInvLine.Quantity);
+                PurchaseCurrency := PurchInvHeader."Currency Code";
+                LastPurchaseDate := PurchInvHeader."Posting Date";
+                LastPurchaseInvoice := PurchInvLine."Document No.";
+            end;
+        end;
+    end;
+
+    local procedure ShowDetails()
+    begin
+        Page.Run(Page::"Item Card", Rec);
+    end;
+
 }

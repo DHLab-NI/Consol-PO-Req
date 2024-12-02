@@ -15,25 +15,43 @@ tableextension 50100 ReqLineConsolPOMod extends "Requisition Line"
             trigger OnValidate()
             //Set Action Message as a flag so that ReqWkshMakePOMod codeunit can sort Req lines by whether Add-to PO No. has been specified
             begin
-                if "Add-to Purchase Order No." <> '' then
-                    "Action Message" := "Action Message"::" " else
+                if "Add-to Purchase Order No." <> '' then begin
+                    "Action Message" := "Action Message"::" ";
+                    "Back-to-back Order" := false;
+                end else
                     "Action Message" := "Action Message"::New;
             end;
         }
         field(50101; "Back-to-back Order"; Boolean)
         {
-            Caption = 'Back-to-back Order';
+            Caption = 'New Back-to-back Order';
             ToolTip = 'Create a separate purchase order for this line item';
             InitValue = true;
             trigger OnValidate()
             //Set Action Message as a flag so that ReqWkshMakePOMod codeunit can sort Req lines by whether Back-to-back order has been specified
             begin
-                if "Back-to-back Order" then
-                    "Action Message" := "Action Message"::" " else
+                if "Back-to-back Order" then begin
+                    "Action Message" := "Action Message"::" ";
+                    "Add-to Purchase Order No." := '';
+                end else
                     "Action Message" := "Action Message"::New;
             end;
         }
 
+        field(50102; "Sales Order Price"; Decimal)
+        {
+            Caption = 'Sales Order Price';
+            ToolTip = 'Net selling price to customer per Sales Order';
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 2;
+            Editable = False;
+        }
+        field(50103; "Sales Order Currency"; code[10])
+        {
+            Caption = 'Sales Order Currency';
+            ToolTip = 'Specifies the currency of the Sales Order Price';
+            Editable = False;
+        }
     }
 
     keys

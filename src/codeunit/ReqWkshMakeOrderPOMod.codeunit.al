@@ -595,8 +595,11 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         PurchOrderLine."Vendor Item No." := RequisitionLine."Vendor Item No.";
         PurchOrderLine.Description := RequisitionLine.Description;
         PurchOrderLine."Description 2" := RequisitionLine."Description 2";
+        // SGHTEST03 Create and populate new Sales Order fields instead of drop shipment/special order fields to avoid auto posting of sales lines. 
         PurchOrderLine."Sales Order No." := RequisitionLine."Sales Order No.";
         PurchOrderLine."Sales Order Line No." := RequisitionLine."Sales Order Line No.";
+        //        PurchOrderLine."Sales Order No." := RequisitionLine."Sales Order No.";
+        //        PurchOrderLine."Sales Order Line No." := RequisitionLine."Sales Order Line No.";
         PurchOrderLine."Prod. Order No." := RequisitionLine."Prod. Order No.";
         PurchOrderLine."Bin Code" := RequisitionLine."Bin Code";
         PurchOrderLine."Item Category Code" := RequisitionLine."Item Category Code";
@@ -716,7 +719,8 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         AddOnIntegrMgt.TransferFromReqLineToPurchLine(PurchOrderLine, ReqLine2);
         OnInsertPurchOrderLineOnAfterTransferFromReqLineToPurchLine(PurchOrderLine, ReqLine2);
 
-        PurchOrderLine."Drop Shipment" := ReqLine2."Sales Order Line No." <> 0;
+        // SGHSTOP Do not allow drop shipment - Do not comment out line as breaks link with PO on SO Line REF SGHTEST01
+        // PurchOrderLine."Drop Shipment" := ReqLine2."Sales Order Line No." <> 0;
 
         if PurchasingCode.Get(ReqLine2."Purchasing Code") then
             if PurchasingCode."Special Order" then begin
@@ -748,41 +752,42 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         if ReqLine2.Reserve then
             ReserveBindingOrderToPurch(PurchOrderLine, ReqLine2);
 
-        if PurchOrderLine."Drop Shipment" or PurchOrderLine."Special Order" then begin
-            SalesOrderLine.LockTable();
-            SalesOrderHeader.LockTable();
-            SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, ReqLine2."Sales Order No.");
-            CheckPurchOrderLineShipToCode(ReqLine2);
-            SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, ReqLine2."Sales Order No.", ReqLine2."Sales Order Line No.");
-            SalesOrderLine.TestField(Type, SalesOrderLine.Type::Item);
-            if SalesOrderLine."Purch. Order Line No." <> 0 then
-                Error(Text006, SalesOrderLine."No.", SalesOrderLine."Document No.", SalesOrderLine."Purchase Order No.");
-            if SalesOrderLine."Special Order Purchase No." <> '' then
-                Error(Text006, SalesOrderLine."No.", SalesOrderLine."Document No.", SalesOrderLine."Special Order Purchase No.");
-            if not PurchOrderLine."Special Order" then
-                ReqLine2.TestField("Sell-to Customer No.", SalesOrderLine."Sell-to Customer No.");
-            ReqLine2.TestField(Type, SalesOrderLine.Type);
-            if PurchOrderLine."Drop Shipment" then
-                CheckRequsitionLineQuantity(ReqLine2);
-            ReqLine2.TestField("No.", SalesOrderLine."No.");
-            ReqLine2.TestField("Location Code", SalesOrderLine."Location Code");
-            ReqLine2.TestField("Variant Code", SalesOrderLine."Variant Code");
-            ReqLine2.TestField("Bin Code", SalesOrderLine."Bin Code");
-            ReqLine2.TestField("Prod. Order No.", '');
-            ReqLine2.TestField("Qty. per Unit of Measure", ReqLine2."Qty. per Unit of Measure");
-            OnInsertPurchOrderLineOnBeforeSalesOrderLineValidateUnitCostLCY(PurchOrderLine, SalesOrderLine);
-            SalesOrderLine.Validate("Unit Cost (LCY)");
+        //SGH Do for all lines regardless of Drop Shipment being set (comment out next line)  REF SGHTEST01 START
+        //if PurchOrderLine."Drop Shipment" or PurchOrderLine."Special Order" then begin
+        SalesOrderLine.LockTable();
+        SalesOrderHeader.LockTable();
+        SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, ReqLine2."Sales Order No.");
+        CheckPurchOrderLineShipToCode(ReqLine2);
+        SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, ReqLine2."Sales Order No.", ReqLine2."Sales Order Line No.");
+        SalesOrderLine.TestField(Type, SalesOrderLine.Type::Item);
+        if SalesOrderLine."Purch. Order Line No." <> 0 then
+            Error(Text006, SalesOrderLine."No.", SalesOrderLine."Document No.", SalesOrderLine."Purchase Order No.");
+        if SalesOrderLine."Special Order Purchase No." <> '' then
+            Error(Text006, SalesOrderLine."No.", SalesOrderLine."Document No.", SalesOrderLine."Special Order Purchase No.");
+        if not PurchOrderLine."Special Order" then
+            ReqLine2.TestField("Sell-to Customer No.", SalesOrderLine."Sell-to Customer No.");
+        ReqLine2.TestField(Type, SalesOrderLine.Type);
+        if PurchOrderLine."Drop Shipment" then
+            CheckRequsitionLineQuantity(ReqLine2);
+        ReqLine2.TestField("No.", SalesOrderLine."No.");
+        ReqLine2.TestField("Location Code", SalesOrderLine."Location Code");
+        ReqLine2.TestField("Variant Code", SalesOrderLine."Variant Code");
+        ReqLine2.TestField("Bin Code", SalesOrderLine."Bin Code");
+        ReqLine2.TestField("Prod. Order No.", '');
+        ReqLine2.TestField("Qty. per Unit of Measure", ReqLine2."Qty. per Unit of Measure");
+        OnInsertPurchOrderLineOnBeforeSalesOrderLineValidateUnitCostLCY(PurchOrderLine, SalesOrderLine);
+        SalesOrderLine.Validate("Unit Cost (LCY)");
 
-            if SalesOrderLine."Special Order" then begin
-                SalesOrderLine."Special Order Purchase No." := PurchOrderLine."Document No.";
-                SalesOrderLine."Special Order Purch. Line No." := PurchOrderLine."Line No.";
-            end else begin
-                SalesOrderLine."Purchase Order No." := PurchOrderLine."Document No.";
-                SalesOrderLine."Purch. Order Line No." := PurchOrderLine."Line No.";
-            end;
-            OnInsertPurchOrderLineOnBeforeSalesOrderLineModify(SalesOrderLine, ReqLine2, PurchOrderLine);
-            SalesOrderLine.Modify();
+        if SalesOrderLine."Special Order" then begin
+            SalesOrderLine."Special Order Purchase No." := PurchOrderLine."Document No.";
+            SalesOrderLine."Special Order Purch. Line No." := PurchOrderLine."Line No.";
+        end else begin
+            SalesOrderLine."Purchase Order No." := PurchOrderLine."Document No.";
+            SalesOrderLine."Purch. Order Line No." := PurchOrderLine."Line No.";
         end;
+        OnInsertPurchOrderLineOnBeforeSalesOrderLineModify(SalesOrderLine, ReqLine2, PurchOrderLine);
+        SalesOrderLine.Modify();
+        //end;  // REF SGHTEST01 END
 
         if TransferExtendedText.PurchCheckIfAnyExtText(PurchOrderLine, false) then begin
             TransferExtendedText.InsertPurchExtText(PurchOrderLine);
@@ -863,9 +868,10 @@ codeunit 50104 "Req. Wksh.-Make Order2"
          */
         PurchOrderHeader.Validate("Currency Code", ReqLine2."Currency Code");
 
-        if PurchasingCode.Get(ReqLine2."Purchasing Code") then
-            if PurchasingCode."Special Order" then
-                SpecialOrder := true;
+        // SGHTEST02 Make all lines Special Order Lines (Comment out next 2 lines)
+        /*if PurchasingCode.Get(ReqLine2."Purchasing Code") then
+            if PurchasingCode."Special Order" then*/
+        SpecialOrder := true;
 
         if not SpecialOrder then
             UpdateShipToOrLocationCode(ReqLine2, PurchOrderHeader)

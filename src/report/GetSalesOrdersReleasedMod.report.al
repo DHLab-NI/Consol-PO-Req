@@ -31,6 +31,7 @@ report 50102 "Get Sales Orders2"
                 if IsHandled then
                     CurrReport.Skip();
 
+                // SGH New check if sales order is released, otherwise ignore
                 if IsSalesOrderReleased("Document No.") then begin
                     LineCount := LineCount + 1;
                     if not HideDialog then
@@ -171,6 +172,9 @@ report 50102 "Get Sales Orders2"
         ReqLine."Variant Code" := SalesLine."Variant Code";
         ReqLine.Validate("Location Code");
         ReqLine."Bin Code" := SalesLine."Bin Code";
+        // SGH Add Selling price & currency per Sales Order
+        ReqLine."Sales Order Price" := SalesLine."Line Amount" / SalesLine.Quantity;
+        ReqLine."Sales Order Currency" := SalesLine."Currency Code";
         OnInsertReqWkshLineOnAfterSetBinCode(ReqLine, SalesLine, PurchasingCode);
 
         // Drop Shipment means replenishment by purchase only

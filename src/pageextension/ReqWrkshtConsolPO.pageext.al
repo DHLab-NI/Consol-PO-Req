@@ -37,8 +37,48 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
         moveafter("Location Code"; Quantity)
         moveafter(Quantity; "Unit of Measure Code")
         moveafter("Unit of Measure Code"; "Vendor No.")
-        moveafter("Vendor No."; "Direct Unit Cost")
+
+        addafter("Vendor No.")
+        {
+            field("Back-to-back Order"; Rec."Back-to-back Order")
+            {
+                ApplicationArea = Planning;
+                Visible = true;
+            }
+        }
+
+        // Field used to bypass new PO and add line to existing PO
+        addafter("Back-to-back Order")
+        {
+            field("Add-to Purchase Order No."; Rec."Add-to Purchase Order No.")
+            {
+                ApplicationArea = Planning;
+                Visible = true;
+                Lookup = true;
+            }
+        }
+
+        moveafter("Add-to Purchase Order No."; "Direct Unit Cost")
+
         addafter("Direct Unit Cost")
+        {
+            field("Sales Order Price"; Rec."Sales Order Price")
+            {
+                ApplicationArea = Planning;
+                Visible = true;
+            }
+        }
+        addafter("Sales Order Price")
+        {
+            field("Sales Order Currency"; Rec."Sales Order Currency")
+            {
+                ApplicationArea = Planning;
+                Visible = true;
+                Editable = false;
+            }
+        }
+
+        addafter("Sales Order Currency")
         {
             field("Sales Order No."; Rec."Sales Order No.")
             {
@@ -46,7 +86,19 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
                 Caption = 'Sales Order No.';
                 Visible = true;
                 ToolTip = 'Specifies the source Sales Order Number';
-                //                Lookup = true;
+                Lookup = false;
+                // Open sales order on drilldown
+                DrillDown = true;
+                trigger OnDrillDown()
+                var
+                    SOPage: Page "Sales Order";
+                    SalesOrder: Record "Sales Header";
+                begin
+                    SalesOrder.SetRange("No.", rec."Sales Order No.");
+                    SalesOrder.FindFirst();
+                    SOPage.SetRecord(SalesOrder);
+                    SOPage.Run();
+                end;
             }
         }
         addafter("Sales Order No.")
@@ -63,27 +115,6 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
         moveafter(Type; "Action Message")
         moveafter("Action Message"; "Accept Action Message")
         moveafter("Accept Action Message"; "Price Calculation Method")
-
-        // Field used to bypass new PO and add line to existing PO
-        addafter("Direct Unit Cost")
-        {
-            field("Add-to Purchase Order No."; Rec."Add-to Purchase Order No.")
-            {
-                ApplicationArea = Planning;
-                Visible = true;
-                Lookup = true;
-            }
-        }
-
-        addafter("Vendor No.")
-        {
-            field("Back-to-back Order"; Rec."Back-to-back Order")
-            {
-                ApplicationArea = Planning;
-                Visible = true;
-            }
-        }
-
 
         //Specify position of freeze column
         modify(Control1)
@@ -131,8 +162,6 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
                         CurrPage.Update(false);
                     end;
                 }
-
-
             }
         }
         addafter("Category_Process")
