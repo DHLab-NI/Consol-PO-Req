@@ -107,6 +107,16 @@ page 50102 "Related Sales Order FactBox"
                     ToolTip = 'Specfies whether item can shipped in part or must be complete';
                 }
             }
+            group(ItemInfo)
+            {
+                Caption = 'Item Information';
+                field(Bin; Bin)
+                {
+                    ApplicationArea = Planning;
+                    Caption = 'Shelf/Bin Location';
+                    ToolTip = 'Specfies the Shelf/Bin location of the item on this line';
+                }
+            }
         }
     }
 
@@ -127,6 +137,7 @@ page 50102 "Related Sales Order FactBox"
         SellToCustomer: Record Customer;
         Item: Record Item;
         SalesOrderHeader: Record "Sales Header";
+        ItemCard: Record Item;
 
     begin
         Clear(SellToCustName);
