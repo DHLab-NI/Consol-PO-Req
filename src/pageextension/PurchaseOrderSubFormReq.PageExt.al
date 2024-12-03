@@ -1,25 +1,13 @@
-pageextension 50101 PurchRcptLinesReq extends "Posted Purchase Receipt Lines"
+pageextension 50102 PurchaseOrderSubformReqExt extends "Purchase Order Subform"
 {
     layout
     {
-        modify(Control1900383207)
-        {
-            Visible = true;
-        }
-
-        modify(Control1905767507)
-        {
-            Visible = true;
-        }
-
-
-        addafter("Unit of Measure Code")
+        addafter("Shortcut Dimension 2 Code")
         {
             field("B2B Sales Order No."; Rec."B2B Sales Order No.")
             {
-                ApplicationArea = Planning;
+                ApplicationArea = Basic, Suite;
                 Caption = 'B2B Sales Order No.';
-                ToolTip = 'Specifies the source Sales Order Number';
 
                 // Open sales order on drilldown
                 DrillDown = true;
@@ -40,20 +28,8 @@ pageextension 50101 PurchRcptLinesReq extends "Posted Purchase Receipt Lines"
         {
             field("B2B Sales Order Line No."; Rec."B2B Sales Order Line No.")
             {
-                ApplicationArea = Planning;
+                ApplicationArea = Basic, Suite;
                 Caption = 'B2B Sales Order Line No.';
-                ToolTip = 'Specifies the source Sales Order Line Number';
-            }
-        }
-
-
-        addlast(FactBoxes)
-        {
-            part(Control50000; "Related Sales Order FactBox")
-            {
-                ApplicationArea = Planning;
-                SubPageLink = "Document No." = field("B2B Sales Order No."), "Line No." = field("B2B Sales Order Line No.");
-                Visible = true;
             }
         }
     }

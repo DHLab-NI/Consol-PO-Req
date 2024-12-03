@@ -28,6 +28,24 @@ tableextension 50103 PurchLineReqExt extends "Purchase Line"
         // Add changes to field groups here
     }
 
+    trigger OnDelete()
+    // SGH Delete Purchase Oirder information from related Sales Order as specified in B2B Sales Order fields on PO
+    var
+        SalesOrderLine: Record "Sales Line";
+        ShouldModifySalesOrderLine: Boolean;
+    begin
+        ShouldModifySalesOrderLine := "B2B Sales Order Line No." <> 0;
+        if ShouldModifySalesOrderLine then begin
+            LockTable();
+            SalesOrderLine.LockTable();
+            SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, "B2B Sales Order No.", "B2B Sales Order Line No.");
+            SalesOrderLine."Purchase Order No." := '';
+            SalesOrderLine."Purch. Order Line No." := 0;
+            SalesOrderLine.Modify();
+        end;
+    end;
+
+
     var
         myInt: Integer;
 }

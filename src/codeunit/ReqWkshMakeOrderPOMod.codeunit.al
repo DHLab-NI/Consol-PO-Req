@@ -596,8 +596,8 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         PurchOrderLine.Description := RequisitionLine.Description;
         PurchOrderLine."Description 2" := RequisitionLine."Description 2";
         // SGHTEST03 Create and populate new Sales Order fields instead of drop shipment/special order fields to avoid auto posting of sales lines. 
-        PurchOrderLine."Sales Order No." := RequisitionLine."Sales Order No.";
-        PurchOrderLine."Sales Order Line No." := RequisitionLine."Sales Order Line No.";
+        PurchOrderLine."B2B Sales Order No." := RequisitionLine."Sales Order No.";
+        PurchOrderLine."B2B Sales Order Line No." := RequisitionLine."Sales Order Line No.";
         //        PurchOrderLine."Sales Order No." := RequisitionLine."Sales Order No.";
         //        PurchOrderLine."Sales Order Line No." := RequisitionLine."Sales Order Line No.";
         PurchOrderLine."Prod. Order No." := RequisitionLine."Prod. Order No.";
@@ -728,8 +728,9 @@ codeunit 50104 "Req. Wksh.-Make Order2"
                 PurchOrderLine."Special Order Sales Line No." := ReqLine2."Sales Order Line No.";
                 PurchOrderLine."Special Order" := true;
                 PurchOrderLine."Drop Shipment" := false;
-                PurchOrderLine."Sales Order No." := '';
-                PurchOrderLine."Sales Order Line No." := 0;
+                // SGHTEST03 Add B2B to next 2 lines
+                PurchOrderLine."B2B Sales Order No." := '';
+                PurchOrderLine."B2B Sales Order Line No." := 0;
                 PurchOrderLine."Special Order" := true;
                 PurchOrderLine.UpdateUnitCost();
             end;

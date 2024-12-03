@@ -115,12 +115,6 @@ report 50101 "Carry Out Action Msg. - Req.2"
         IsHandled := false;
         OnUseOneJnlOnBeforeSetReqWkshMakeOrdersParameters(ReqLine, ReqWkshMakeOrders, PurchOrderHeader, EndOrderDate, PrintOrders, SuppressCommit, IsHandled);
         if not IsHandled then begin
-            //SGHSTOP Insert existing PO Header into next line if required. Rest of code should check if it meets criteria or new PO is created.
-            //So, if existing PO information exists on line, then insert existing POHeader. Use lookup to filter suitable PO's i.e. is not released, matches vendor etc
-            // SGH Start insert existing PO
-            // Removed PurchOrderHeader.SetRange("No.", 'PO100094');
-            // SGH End insert existing PO
-            //Message('SGH1 PurchOrderHeader.No. = %1', PurchOrderHeader."No.");
             ReqWkshMakeOrders.Set(PurchOrderHeader, EndOrderDate, PrintOrders);
             ReqWkshMakeOrders.SetSuppressCommit(SuppressCommit);
             ReqWkshMakeOrders.CarryOutBatchAction(ReqLine);
