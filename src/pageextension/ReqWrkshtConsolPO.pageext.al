@@ -31,6 +31,12 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
             Visible = false;
         }
 
+        // Show Sell-to (Sales/Cust Account)
+        modify("Sell-to Customer No.")
+        {
+            Visible = true;
+        }
+
         // NEW AND REORDER COLUMNS
         moveafter("No."; Description)
         moveafter(Description; "Location Code")
@@ -111,7 +117,8 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
                 ToolTip = 'Specifies the source Sales Order Line Number';
             }
         }
-        moveafter("Sales Order Line No."; Type)
+        moveafter("Sales Order Line No."; "Sell-to Customer No.")
+        moveafter("Sell-to Customer No."; Type)
         moveafter(Type; "Action Message")
         moveafter("Action Message"; "Accept Action Message")
         moveafter("Accept Action Message"; "Price Calculation Method")
