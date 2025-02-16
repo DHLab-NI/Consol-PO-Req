@@ -782,9 +782,15 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         if SalesOrderLine."Special Order" then begin
             SalesOrderLine."Special Order Purchase No." := PurchOrderLine."Document No.";
             SalesOrderLine."Special Order Purch. Line No." := PurchOrderLine."Line No.";
-        end else begin
+            //        end else begin
+        end else if SalesOrderLine."Drop Shipment" then begin  //SGH Amend above line to allow for 3rd option
             SalesOrderLine."Purchase Order No." := PurchOrderLine."Document No.";
             SalesOrderLine."Purch. Order Line No." := PurchOrderLine."Line No.";
+        end else begin
+            // SGH Add code to insert PO information into new B2B order fields on Sales Order lines -- START
+            SalesOrderLine."B2B Purch. Order No." := PurchOrderLine."Document No.";
+            SalesOrderLine."B2B Purch. Order Line No." := PurchOrderLine."Line No.";
+            // SGH Add code to insert PO information into new B2B order fields on Sales Order lines -- END
         end;
         OnInsertPurchOrderLineOnBeforeSalesOrderLineModify(SalesOrderLine, ReqLine2, PurchOrderLine);
         SalesOrderLine.Modify();

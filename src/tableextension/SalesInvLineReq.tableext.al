@@ -1,17 +1,17 @@
-tableextension 50101 PurchInvLineReqExt extends "Purch. Inv. Line"
+tableextension 50106 SalesInvLineReqExt extends "Sales Invoice Line"
 {
     fields
     {
-        field(50104; "B2B Sales Order No."; code[20])
+        field(50104; "B2B Purch. Order No."; code[20])
         {
-            Caption = 'B2B Sales Order No.';
-            ToolTip = 'Specifies the related back-to-back sales order no.';
+            Caption = 'B2B Purch. Order No.';
+            ToolTip = 'Specifies the related back-to-back Purchase order no.';
             Editable = False;
         }
-        field(50105; "B2B Sales Order Line No."; Integer)
+        field(50105; "B2B Purch. Order Line No."; Integer)
         {
-            Caption = 'B2B Sales Order Line No.';
-            ToolTip = 'Specifies the related back-to-back sales order line no.';
+            Caption = 'B2B Purch. Order Line No.';
+            ToolTip = 'Specifies the related back-to-back Purchase order line no.';
             Editable = False;
         }
 
@@ -19,7 +19,7 @@ tableextension 50101 PurchInvLineReqExt extends "Purch. Inv. Line"
 
     keys
     {
-        // SGH Sort lines by posting date to find last purchase line.
+        // SGH Sort lines by posting date to find last sales line - copied from purchase Inv line - may not be needed
         key(keyReq; Type, "No.", "Variant Code", "Posting Date")
         {
             MaintainSQLIndex = false;
