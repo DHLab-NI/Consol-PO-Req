@@ -1,6 +1,6 @@
 // Page to display Related Sales Order information Posted Purchase Receipt Lines Page
 
-namespace Microsoft.Inventory.SalesOrder;
+namespace DHLab.Inventory.SalesOrder;
 using Microsoft.Sales.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Foundation.Shipping;

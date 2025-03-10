@@ -1,7 +1,7 @@
 // Created from copy of system codeunit 333 "Req. Wksh.-Make Order" SGH 30/10/24.
 //             SGH  Purchasing code can be used to create a separate purchase order for a sales order. 
 
-namespace Microsoft.Inventory.Requisition;
+namespace DHLab.Inventory.Requisition;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Finance.Dimension;
@@ -12,6 +12,7 @@ using Microsoft.Foundation.Period;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;

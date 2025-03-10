@@ -1,11 +1,12 @@
 // Page copied from system page 9090 "Item Replenishment FactBox" and modified
 
-namespace Microsoft.Inventory.Item;
+namespace DHLab.Inventory.Item;
 
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.History;
+using Microsoft.Inventory.Item;
 
 page 50101 "Item Requisition FactBox"
 {

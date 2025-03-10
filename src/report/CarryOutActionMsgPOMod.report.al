@@ -2,9 +2,10 @@
 // Group Items from same vendor onto one PO
 // Add to existing PO
 
-namespace Microsoft.Inventory.Requisition;
+namespace DHLab.Inventory.Requisition;
 
 using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Requisition;
 
 report 50101 "Carry Out Action Msg. - Req.2"
 {

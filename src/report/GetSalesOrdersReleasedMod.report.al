@@ -1,11 +1,12 @@
 // Created from copy of system report 698 "Get Sales Orders" SGH 29/10/24
 // Modify to get released sales orders only (or add request page filters)
 
-namespace Microsoft.Sales.Document;
+namespace DHLab.Sales.Document;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory;
 using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Sales.Document;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 
