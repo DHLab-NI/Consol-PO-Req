@@ -762,8 +762,9 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         CheckPurchOrderLineShipToCode(ReqLine2);
         SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, ReqLine2."Sales Order No.", ReqLine2."Sales Order Line No.");
         SalesOrderLine.TestField(Type, SalesOrderLine.Type::Item);
-        if SalesOrderLine."Purch. Order Line No." <> 0 then
-            Error(Text006, SalesOrderLine."No.", SalesOrderLine."Document No.", SalesOrderLine."Purchase Order No.");
+        //SGH 11/03/25 Change to B2B PO 
+        if SalesOrderLine."B2B Purch. Order Line No." <> 0 then
+            Error(Text006, SalesOrderLine."No.", SalesOrderLine."Document No.", SalesOrderLine."B2B Purch. Order No.");
         if SalesOrderLine."Special Order Purchase No." <> '' then
             Error(Text006, SalesOrderLine."No.", SalesOrderLine."Document No.", SalesOrderLine."Special Order Purchase No.");
         if not PurchOrderLine."Special Order" then
