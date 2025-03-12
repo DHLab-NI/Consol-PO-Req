@@ -14,7 +14,6 @@ tableextension 50101 PurchInvLineReqExt extends "Purch. Inv. Line"
             ToolTip = 'Specifies the related back-to-back sales order line no.';
             Editable = False;
         }
-
     }
 
     keys

@@ -25,14 +25,22 @@ pageextension 50104 SalesShipmtLinesReq extends "Posted Sales Shipment Lines"
                 DrillDown = true;
                 trigger OnDrillDown()
                 var
-                    POPage: Page "Sales Order";
-                    PurchOrder: Record "Sales Header";
+                    POPage: Page "Purchase Order";
+                    POArchivePage: Page "Purchase Order Archive";
+                    PurchOrder: Record "Purchase Header";
+                    PurchaseOrderArchive: Record "Purchase Header Archive";
 
                 begin
                     PurchOrder.SetRange("No.", rec."B2B Purch. Order No.");
-                    PurchOrder.FindFirst();
-                    POPage.SetRecord(PurchOrder);
-                    POPage.Run();
+                    If PurchOrder.FindFirst() then begin
+                        POPage.SetRecord(PurchOrder);
+                        POPage.Run();
+                    end else if PurchaseOrderArchive.FindFirst() then begin
+                        PurchaseOrderArchive.SetRange("No.", rec."B2B Purch. Order No.");
+                        POArchivePage.SetRecord(PurchOrder);
+                        POArchivePage.Run();
+                    end else
+                        Message('Sales order %1 not found', rec."B2B Purch. Order No.");
                 end;
             }
         }

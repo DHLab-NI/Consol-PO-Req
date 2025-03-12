@@ -26,13 +26,21 @@ pageextension 50101 PurchRcptLinesReq extends "Posted Purchase Receipt Lines"
                 trigger OnDrillDown()
                 var
                     SOPage: Page "Sales Order";
+                    SOArchivePage: Page "Sales Order Archive";
                     SalesOrder: Record "Sales Header";
+                    SalesOrderArchive: Record "Sales Header Archive";
 
                 begin
                     SalesOrder.SetRange("No.", rec."B2B Sales Order No.");
-                    SalesOrder.FindFirst();
-                    SOPage.SetRecord(SalesOrder);
-                    SOPage.Run();
+                    If SalesOrder.FindFirst() then begin
+                        SOPage.SetRecord(SalesOrder);
+                        SOPage.Run();
+                    end else if SalesOrderArchive.FindFirst() then begin
+                        SalesOrderArchive.SetRange("No.", rec."B2B Sales Order No.");
+                        SOArchivePage.SetRecord(SalesOrder);
+                        SOArchivePage.Run();
+                    end else
+                        Message('Sales order %1 not found', rec."B2B Sales Order No.");
                 end;
             }
         }
@@ -43,6 +51,22 @@ pageextension 50101 PurchRcptLinesReq extends "Posted Purchase Receipt Lines"
                 ApplicationArea = Planning;
                 Caption = 'B2B Sales Order Line No.';
                 ToolTip = 'Specifies the source Sales Order Line Number';
+            }
+        }
+
+        addafter(Quantity)
+        {
+            field(Inventory; Rec.Inventory)
+            {
+                ApplicationArea = Planning;
+                Caption = 'Inventory';
+                ToolTip = 'Specifies the quantity on hand at receiving location';
+            }
+            field("Qty. Shipped on SO"; Rec."Qty. Shipped on SO")
+            {
+                ApplicationArea = Planning;
+                Caption = 'Qty. Shipped on SO';
+                ToolTip = 'Specifies the quantity shipped on the related B2B Sales Order';
             }
         }
 

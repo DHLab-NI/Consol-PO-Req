@@ -98,12 +98,21 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
                 trigger OnDrillDown()
                 var
                     SOPage: Page "Sales Order";
+                    SOArchivePage: Page "Sales Order Archive";
                     SalesOrder: Record "Sales Header";
+                    SalesOrderArchive: Record "Sales Header Archive";
+
                 begin
                     SalesOrder.SetRange("No.", rec."Sales Order No.");
-                    SalesOrder.FindFirst();
-                    SOPage.SetRecord(SalesOrder);
-                    SOPage.Run();
+                    If SalesOrder.FindFirst() then begin
+                        SOPage.SetRecord(SalesOrder);
+                        SOPage.Run();
+                    end else if SalesOrderArchive.FindFirst() then begin
+                        SalesOrderArchive.SetRange("No.", rec."Sales Order No.");
+                        SOArchivePage.SetRecord(SalesOrder);
+                        SOArchivePage.Run();
+                    end else
+                        Message('Sales order %1 not found', rec."Sales Order No.");
                 end;
             }
         }

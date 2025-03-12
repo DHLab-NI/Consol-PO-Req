@@ -14,13 +14,21 @@ pageextension 50105 PostedPurchrcptSubformReqExt extends "Posted Purchase Rcpt. 
                 trigger OnDrillDown()
                 var
                     SOPage: Page "Sales Order";
+                    SOArchivePage: Page "Sales Order Archive";
                     SalesOrder: Record "Sales Header";
+                    SalesOrderArchive: Record "Sales Header Archive";
 
                 begin
                     SalesOrder.SetRange("No.", rec."B2B Sales Order No.");
-                    SalesOrder.FindFirst();
-                    SOPage.SetRecord(SalesOrder);
-                    SOPage.Run();
+                    If SalesOrder.FindFirst() then begin
+                        SOPage.SetRecord(SalesOrder);
+                        SOPage.Run();
+                    end else if SalesOrderArchive.FindFirst() then begin
+                        SalesOrderArchive.SetRange("No.", rec."B2B Sales Order No.");
+                        SOArchivePage.SetRecord(SalesOrder);
+                        SOArchivePage.Run();
+                    end else
+                        Message('Sales order %1 not found', rec."B2B Sales Order No.");
                 end;
             }
         }
