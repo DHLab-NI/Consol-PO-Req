@@ -19,7 +19,7 @@ tableextension 50104 SalesLineReqExt extends "Sales Line"
     }
 
     // SGH Delete Purchase Order information from related Sales Order as specified in B2B Sales Order fields on PO
-    // Code copied from PurchLineReq.TableExt 50103. If needed, you will need to chane references to SO: lines to PO lines   
+    // Code copied from PurchLineReq.TableExt 50103. If needed, you will need to change references to SO: lines to PO lines   
     /*
     trigger OnDelete()
     var
