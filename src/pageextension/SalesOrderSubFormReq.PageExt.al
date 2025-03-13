@@ -20,12 +20,12 @@ pageextension 50103 SalesOrderSubformReqExt extends "Sales Order Subform"
 
                 begin
                     PurchOrder.SetRange("No.", rec."B2B Purch. Order No.");
+                    PurchaseOrderArchive.SetRange("No.", rec."B2B Purch. Order No.");
                     If PurchOrder.FindFirst() then begin
                         POPage.SetRecord(PurchOrder);
                         POPage.Run();
                     end else if PurchaseOrderArchive.FindFirst() then begin
-                        PurchaseOrderArchive.SetRange("No.", rec."B2B Purch. Order No.");
-                        POArchivePage.SetRecord(PurchOrder);
+                        POArchivePage.SetRecord(PurchaseOrderArchive);
                         POArchivePage.Run();
                     end else
                         Message('Sales order %1 not found', rec."B2B Purch. Order No.");

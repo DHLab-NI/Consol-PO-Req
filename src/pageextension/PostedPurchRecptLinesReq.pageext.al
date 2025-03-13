@@ -32,12 +32,12 @@ pageextension 50101 PurchRcptLinesReq extends "Posted Purchase Receipt Lines"
 
                 begin
                     SalesOrder.SetRange("No.", rec."B2B Sales Order No.");
+                    SalesOrderArchive.SetRange("No.", rec."B2B Sales Order No.");
                     If SalesOrder.FindFirst() then begin
                         SOPage.SetRecord(SalesOrder);
                         SOPage.Run();
                     end else if SalesOrderArchive.FindFirst() then begin
-                        SalesOrderArchive.SetRange("No.", rec."B2B Sales Order No.");
-                        SOArchivePage.SetRecord(SalesOrder);
+                        SOArchivePage.SetRecord(SalesOrderArchive);
                         SOArchivePage.Run();
                     end else
                         Message('Sales order %1 not found', rec."B2B Sales Order No.");
