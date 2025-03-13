@@ -62,11 +62,11 @@ pageextension 50101 PurchRcptLinesReq extends "Posted Purchase Receipt Lines"
                 Caption = 'Inventory';
                 ToolTip = 'Specifies the quantity on hand at receiving location';
             }
-            field("Qty. Shipped on SO"; Rec."Qty. Shipped on SO")
+            field("O/S Qty. on SO"; Rec."O/S Qty. on SO")
             {
                 ApplicationArea = Planning;
-                Caption = 'Qty. Shipped on SO';
-                ToolTip = 'Specifies the quantity shipped on the related B2B Sales Order';
+                Caption = 'O/S Qty. on SO';
+                ToolTip = 'Specifies the unshipped outstanding quantity on the related B2B Sales Order Line';
             }
         }
 
