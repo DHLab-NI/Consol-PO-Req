@@ -39,6 +39,29 @@ tableextension 50102 PurchRecptLineReqExt extends "Purch. Rcpt. Line"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(50108; "Sell-to Customer No."; Code[20])
+        {
+            FieldClass = FlowField;
+
+            CalcFormula = lookup("Sales Header"."Sell-to Customer No." where("No." = field("B2B Sales Order No."),
+                                                            "Document Type" = const("Sales Document Type"::Order)
+            ));
+
+            Caption = 'Sell-to Customer No.';
+            ToolTip = 'Specifies the Sell-to Customer No. on the related B2B Sales Order';
+            Editable = false;
+        }
+        field(50109; "Shelf No."; Code[10])
+        {
+            FieldClass = FlowField;
+
+            CalcFormula = lookup(Item."Shelf No." where("No." = field("No.")
+            ));
+
+            Caption = 'Shelf No.';
+            ToolTip = 'Specifies the Shelf No. on the Item Card';
+            Editable = false;
+        }
 
     }
 

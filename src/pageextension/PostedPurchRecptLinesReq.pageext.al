@@ -69,6 +69,17 @@ pageextension 50101 PurchRcptLinesReq extends "Posted Purchase Receipt Lines"
                 ToolTip = 'Specifies the unshipped outstanding quantity on the related B2B Sales Order Line';
             }
         }
+        addafter("Location Code")
+        {
+            field("Shelf No."; Rec."Shelf No.")
+            {
+                ApplicationArea = Planning;
+            }
+            field("Sell-to Customer No."; Rec."Sell-to Customer No.")
+            {
+                ApplicationArea = Planning;
+            }
+        }
 
 
         addlast(FactBoxes)
