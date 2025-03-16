@@ -2,7 +2,7 @@
   "id": "65359388-1596-40f5-91c1-38c6a4a134bd",
   "name": "Consol PO Req",
   "publisher": "DHLab",
-  "version": "1.0.0.2",
+  "version": "1.0.0.3",
   "brief": "Consolidated POs from Reqs",
   "description": "Produce consolidated purchase orders from Requisitions",
   "privacyStatement": "",
