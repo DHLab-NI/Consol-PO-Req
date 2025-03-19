@@ -20,7 +20,7 @@ report 50102 "Get Sales Orders2"
         dataitem("Sales Line"; "Sales Line")
         {
             DataItemTableView = where("Document Type" = const(Order), Type = const(Item), "B2B Purch. Order Line No." = const(0), "Outstanding Quantity" = filter(<> 0));
-            RequestFilterFields = "Document No.", "Sell-to Customer No.", "No.";
+            RequestFilterFields = "Document No.", "Sell-to Customer No.", "No.", "Posting Group";
             RequestFilterHeading = 'Sales Order Line';
 
             trigger OnAfterGetRecord()
