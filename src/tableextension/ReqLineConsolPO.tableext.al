@@ -17,11 +17,13 @@ tableextension 50100 ReqLineConsolPOMod extends "Requisition Line"
             begin
                 if "Add-to Purchase Order No." <> '' then begin
                     "Action Message" := "Action Message"::" ";
-                    "Back-to-back Order" := false;
+                    // SGH 19-03-25 remove this functionality (not working properly)
+                    //                    "Back-to-back Order" := false;
                 end else
                     "Action Message" := "Action Message"::New;
             end;
         }
+        // SGH 19-03-25 remove this functionality (not working properly) - *** CANNOT DELETE FIELD - "Removing fields is not allowed" ***
         field(50101; "Back-to-back Order"; Boolean)
         {
             Caption = 'New Back-to-back Order';

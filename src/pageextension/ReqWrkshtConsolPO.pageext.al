@@ -44,17 +44,18 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
         moveafter(Quantity; "Unit of Measure Code")
         moveafter("Unit of Measure Code"; "Vendor No.")
 
-        addafter("Vendor No.")
-        {
-            field("Back-to-back Order"; Rec."Back-to-back Order")
-            {
-                ApplicationArea = Planning;
-                Visible = true;
-            }
-        }
+        // SGH 19-03-25 remove this functionality (not working properly)
+        /*        addafter("Vendor No.")
+                {
+                    field("Back-to-back Order"; Rec."Back-to-back Order")
+                    {
+                        ApplicationArea = Planning;
+                        Visible = true;
+                    }
+                } */
 
         // Field used to bypass new PO and add line to existing PO
-        addafter("Back-to-back Order")
+        addafter("Vendor No.")
         {
             field("Add-to Purchase Order No."; Rec."Add-to Purchase Order No.")
             {
