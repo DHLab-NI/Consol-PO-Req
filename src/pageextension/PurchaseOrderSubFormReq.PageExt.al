@@ -44,6 +44,24 @@ pageextension 50102 PurchaseOrderSubformReqExt extends "Purchase Order Subform"
 
     actions
     {
+
+        addfirst("F&unctions")
+        {
+            action("LinkB2BSO")
+            {
+                ApplicationArea = Planning;
+                Caption = 'Link B2B Sales Order';
+                Image = Link;
+                ToolTip = 'Link a Back-to-back purchase order to the selected line';
+
+                trigger OnAction()
+                begin
+                    Rec.LinkB2BSalesOrderLine();
+                end;
+            }
+
+        }
+
     }
 
     var
