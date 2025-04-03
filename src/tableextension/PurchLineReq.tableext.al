@@ -46,16 +46,6 @@ tableextension 50103 PurchLineReqExt extends "Purchase Line"
         end;
     end;
 
-    procedure LinkB2BSalesOrderLine() IsChanged: Boolean
-    var
-        SalesLine: Record "Sales Line";
-        SalesOrderNumber: Code[20];
-        SalesOrderLineNumber: Integer;
-    begin
-        Message('Functioncurrently in development (S Hall)');
-    end;
-
-
     var
         myInt: Integer;
 }
