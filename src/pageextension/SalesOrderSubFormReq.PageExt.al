@@ -13,22 +13,10 @@ pageextension 50103 SalesOrderSubformReqExt extends "Sales Order Subform"
                 DrillDown = true;
                 trigger OnDrillDown()
                 var
-                    POPage: Page "Purchase Order";
-                    POArchivePage: Page "Purchase Order Archive";
-                    PurchOrder: Record "Purchase Header";
-                    PurchaseOrderArchive: Record "Purchase Header Archive";
+                    B2BOrderMatching: Codeunit B2BOrderMatching;
 
                 begin
-                    PurchOrder.SetRange("No.", rec."B2B Purch. Order No.");
-                    PurchaseOrderArchive.SetRange("No.", rec."B2B Purch. Order No.");
-                    If PurchOrder.FindFirst() then begin
-                        POPage.SetRecord(PurchOrder);
-                        POPage.Run();
-                    end else if PurchaseOrderArchive.FindFirst() then begin
-                        POArchivePage.SetRecord(PurchaseOrderArchive);
-                        POArchivePage.Run();
-                    end else
-                        Message('Sales order %1 not found', rec."B2B Purch. Order No.");
+                    B2BOrderMatching.OpenB2BPurchaseOrder(Rec."B2B Purch. Order No.");
                 end;
             }
         }
