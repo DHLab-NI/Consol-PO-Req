@@ -41,7 +41,7 @@ codeunit 50106 "B2BOrderMatching"
             POArchivePage.SetRecord(PurchaseOrderArchive);
             POArchivePage.Run();
         end else
-            Message('Sales order %1 not found', PurchaseOrderNo);
+            Message('Purchase order %1 not found', PurchaseOrderNo);
     end;
 
 }
