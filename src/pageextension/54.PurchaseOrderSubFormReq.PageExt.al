@@ -78,7 +78,7 @@ pageextension 50102 PurchaseOrderSubformReqExt extends "Purchase Order Subform"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange(Type, PurchaseLine.Type);
         SalesLine.SetRange("No.", PurchaseLine."No.");
-        SalesLine.SetRange(Quantity, PurchaseLine.Quantity);
+        //SalesLine.SetRange(Quantity, PurchaseLine.Quantity);
         SalesLine.SetRange("B2B Purch. Order Line No.", 0);
 
 
