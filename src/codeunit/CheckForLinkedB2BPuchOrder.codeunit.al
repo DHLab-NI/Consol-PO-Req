@@ -34,13 +34,13 @@ codeunit 50105 CheckForLinkedB2BPurchOrder
     local procedure PreventDeleteLine(
         var SalesLine: Record "Sales Line";
         xSalesLine: Record "Sales Line";
-        //CallingFieldNo: Integer;
+        TheFieldCaption: Text[250];
         var IsHandled: Boolean)
     var
         ErrorMessage: Text;
     begin
         // Check if "B2B Purchase Order Line No." is not 0
-        if SalesLine."B2B Purch. Order Line No." <> 0 then begin
+        if ((SalesLine."B2B Purch. Order Line No." <> 0) and (TheFieldCaption = '')) then begin // Check B2B exists and line being deleted
             // Construct the error message with the associated "B2B Purchase Order No."
             ErrorMessage := StrSubstNo(
                 'The Sales Line cannot be deleted because it is associated with B2B Purchase Order No. %1.',
