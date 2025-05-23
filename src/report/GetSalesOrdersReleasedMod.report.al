@@ -9,6 +9,7 @@ using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Sales.Document;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Item;
 
 report 50102 "Get Sales Orders2"
 {
@@ -26,14 +27,23 @@ report 50102 "Get Sales Orders2"
             trigger OnAfterGetRecord()
             var
                 IsHandled: Boolean;
+                AvailableQty: Decimal; // Quantity available at location
+                ItemRec: Record Item;
             begin
                 IsHandled := false;
                 OnBeforeOnAfterGetRecord("Sales Line", IsHandled);
                 if IsHandled then
                     CurrReport.Skip();
 
+                // Calculate available inventory at sales line location
+                If ItemRec.Get("Sales Line"."No.") then begin
+                    ItemRec.SetRange("Location Filter", "Sales Line"."Location Code");
+                    ItemRec.CalcFields(Inventory, "Qty. on Sales Order", "Qty. on Purch. Order");
+                    AvailableQty := ItemRec.Inventory + ItemRec."Qty. on Purch. Order" - ItemRec."Qty. on Sales Order";
+                end;
+
                 // SGH New check if sales order is released, otherwise ignore
-                if IsSalesOrderReleased("Document No.") then begin
+                if ((IsSalesOrderReleased("Document No.")) and ("Sales Line".Quantity > AvailableQty)) then begin
                     LineCount := LineCount + 1;
                     if not HideDialog then
                         Window.Update(1, LineCount);
@@ -150,6 +160,7 @@ report 50102 "Get Sales Orders2"
         if IsHandled then
             exit;
 
+        // Check if Sales Order already added to Req Worksheet
         ReqLine.Reset();
         ReqLine.SetCurrentKey(Type, "No.");
         ReqLine.SetRange(Type, SalesLine.Type);
