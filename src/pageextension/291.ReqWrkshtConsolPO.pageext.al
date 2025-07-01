@@ -42,7 +42,35 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
         moveafter(Description; "Location Code")
         moveafter("Location Code"; Quantity)
         moveafter(Quantity; "Unit of Measure Code")
-        moveafter("Unit of Measure Code"; "Vendor No.")
+
+        // Add InventoryCalc field with drilldown functionality
+        addafter("Unit of Measure Code")
+        {
+            field(InventoryCalc; InventoryCalc)
+            {
+                ApplicationArea = Planning;
+                Caption = 'Inventory';
+                ToolTip = 'Specifies the current inventory quantity for the item (all locations)';
+                Editable = false;
+                DrillDown = true;
+                Visible = true;
+
+                trigger OnDrillDown()
+                var
+                    AdjustInventory: Page "Adjust Inventory";
+                    Item: Record Item;
+                begin
+                    if Rec.Type = Rec.Type::Item then
+                        if Item.Get(Rec."No.") then begin
+                            AdjustInventory.SetItem(Item."No.");
+                            AdjustInventory.RunModal();
+                        end;
+                end;
+            }
+        }
+
+        moveafter(InventoryCalc; "Vendor No.")
+
 
         // SGH 19-03-25 remove this functionality (not working properly)
         /*        addafter("Vendor No.")
@@ -198,6 +226,7 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
 
     var
         GetSalesOrder: Report "Get Sales Orders2";
+        InventoryCalc: Decimal;
 
     local procedure CarryOutActionMsg()
     var
@@ -209,5 +238,18 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
         CarryOutActionMsgReq.GetReqWkshLine(Rec);
     end;
 
+    trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
+    begin
+        // Always set a default value to ensure the field appears
+        InventoryCalc := 0;
 
+        // Calculate inventory for Item type lines
+        if Rec.Type = Rec.Type::Item then
+            if Item.Get(Rec."No.") then begin
+                Item.CalcFields(Inventory);
+                InventoryCalc := Item.Inventory;
+            end;
+    end;
 }
