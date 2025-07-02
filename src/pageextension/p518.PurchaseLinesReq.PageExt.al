@@ -59,16 +59,21 @@ pageextension 50110 PurchaseLinesReqExt extends "Purchase Lines"
         B2BSellToCustomerNo: Code[20];
         SalesHeader: Record "Sales Header";
         OSDays: Integer;
+        PurchaseHeader: Record "Purchase Header";
+        HeaderDocumentDate: Date;
 
     trigger OnAfterGetRecord()
     begin
         B2BSellToCustomerNo := '';
         OSDays := 0;
+        HeaderDocumentDate := 0D;
         if Rec."B2B Sales Order No." <> '' then begin
             if SalesHeader.Get(SalesHeader."Document Type"::Order, Rec."B2B Sales Order No.") then
                 B2BSellToCustomerNo := SalesHeader."Sell-to Customer No.";
         end;
-        if Rec."Order Date" <> 0D then
-            OSDays := Today - Rec."Order Date";
+        if PurchaseHeader.Get(Rec."Document Type", Rec."Document No.") then
+            HeaderDocumentDate := PurchaseHeader."Document Date";
+        if HeaderDocumentDate <> 0D then
+            OSDays := Today - HeaderDocumentDate;
     end;
 }
