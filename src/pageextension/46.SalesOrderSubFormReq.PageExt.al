@@ -11,6 +11,7 @@ pageextension 50103 SalesOrderSubformReqExt extends "Sales Order Subform"
 
                 // Open purchase order on drilldown
                 DrillDown = true;
+                Editable = false;       // Fisher EDI Mod       
                 trigger OnDrillDown()
                 var
                     B2BOrderMatching: Codeunit B2BOrderMatching;
@@ -26,6 +27,7 @@ pageextension 50103 SalesOrderSubformReqExt extends "Sales Order Subform"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'B2B Purch. Order Line No.';
+                Editable = false;       // Fisher EDI Mod       
             }
         }
     }

@@ -7,13 +7,13 @@ tableextension 50103 PurchLineReqExt extends "Purchase Line"
         {
             Caption = 'B2B Sales Order No.';
             ToolTip = 'Specifies the related back-to-back sales order no.';
-            Editable = False;
+            Editable = True;       // Fisher EDI Mod       
         }
         field(50105; "B2B Sales Order Line No."; Integer)
         {
             Caption = 'B2B Sales Order Line No.';
             ToolTip = 'Specifies the related back-to-back sales order line no.';
-            Editable = False;
+            Editable = True;       // Fisher EDI Mod       
         }
         // SGHTEST03 END - use separate fields to avoid auto sales shipping on PO receipt
     }
