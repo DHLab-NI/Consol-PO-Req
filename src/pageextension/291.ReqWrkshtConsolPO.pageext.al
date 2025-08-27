@@ -69,7 +69,40 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
             }
         }
 
-        moveafter(InventoryCalc; "Vendor No.")
+        // Add PO Qty. O/S field with drilldown functionality
+        addafter(InventoryCalc)
+        {
+            field(POQtyOutstanding; POQtyOutstanding)
+            {
+                ApplicationArea = Planning;
+                Caption = 'PO Qty. O/S';
+                ToolTip = 'Specifies the quantity outstanding on purchase orders for the item (all locations)';
+                Editable = false;
+                DrillDown = true;
+                Visible = true;
+
+                trigger OnDrillDown()
+                var
+                    Item: Record Item;
+                    PurchaseLine: Record "Purchase Line";
+                    PurchaseLines: Page "Purchase Lines";
+                begin
+                    if Rec.Type = Rec.Type::Item then
+                        if Item.Get(Rec."No.") then begin
+                            PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+                            PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+                            PurchaseLine.SetRange("No.", Rec."No.");
+                            PurchaseLine.SetRange("Outstanding Quantity", 0, 999999999);
+                            if PurchaseLine.FindSet() then begin
+                                PurchaseLines.SetTableView(PurchaseLine);
+                                PurchaseLines.Run();
+                            end;
+                        end;
+                end;
+            }
+        }
+
+        moveafter(POQtyOutstanding; "Vendor No.")
 
 
         // SGH 19-03-25 remove this functionality (not working properly)
@@ -227,6 +260,7 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
     var
         GetSalesOrder: Report "Get Sales Orders2";
         InventoryCalc: Decimal;
+        POQtyOutstanding: Decimal;
 
     local procedure CarryOutActionMsg()
     var
@@ -244,12 +278,14 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
     begin
         // Always set a default value to ensure the field appears
         InventoryCalc := 0;
+        POQtyOutstanding := 0;
 
         // Calculate inventory for Item type lines
         if Rec.Type = Rec.Type::Item then
             if Item.Get(Rec."No.") then begin
-                Item.CalcFields(Inventory);
+                Item.CalcFields(Inventory, "Qty. on Purch. Order");
                 InventoryCalc := Item.Inventory;
+                POQtyOutstanding := Item."Qty. on Purch. Order";
             end;
     end;
 }
