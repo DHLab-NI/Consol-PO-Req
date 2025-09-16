@@ -139,6 +139,18 @@ page 50101 "Item Requisition FactBox"
                     Lookup = false;
                     ToolTip = 'Specifies the quantity on Purchase Order';
                 }
+                field("Maximum Inventory"; Rec."Maximum Inventory")
+                {
+                    ApplicationArea = Planning;
+                    Lookup = false;
+                    ToolTip = 'Specifies the maximum inventory for the item';
+                }
+                field("Reorder Point"; Rec."Reorder Point")
+                {
+                    ApplicationArea = Planning;
+                    Lookup = false;
+                    ToolTip = 'Specifies the reorder point for the item';
+                }
             }
         }
     }

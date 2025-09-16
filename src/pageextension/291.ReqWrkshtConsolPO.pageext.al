@@ -240,6 +240,21 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
                         CurrPage.Update(false);
                     end;
                 }
+
+                action(ReplenishInventory)
+                {
+                    ApplicationArea = Planning;
+                    Caption = 'Replenish Inventory';
+                    Ellipsis = true;
+                    Image = Purchase;
+                    ToolTip = 'Run replenishment routine for inventory (custom).';
+
+                    trigger OnAction()
+                    begin
+                        ReplenishInventoryRep.SetReqWorksheetLine(Rec);
+                        ReplenishInventoryRep.RunModal();
+                    end;
+                }
             }
         }
         addafter("Category_Process")
@@ -253,12 +268,16 @@ pageextension 50100 ReqWorksheetExt extends "Req. Worksheet"
                 actionref("Create Purchase Orders"; CreatePurchaseOrders)
                 {
                 }
+                actionref("Replenish Inventory"; ReplenishInventory)
+                {
+                }
             }
         }
     }
 
     var
         GetSalesOrder: Report "Get Sales Orders2";
+        ReplenishInventoryRep: Report "Replenish Inventory";
         InventoryCalc: Decimal;
         POQtyOutstanding: Decimal;
 
