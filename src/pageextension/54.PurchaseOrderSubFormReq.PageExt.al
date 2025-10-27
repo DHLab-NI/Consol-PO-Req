@@ -60,7 +60,7 @@ pageextension 50102 PurchaseOrderSubformReqExt extends "Purchase Order Subform"
                     if PurchaseLine.IsEmpty() then
                         Error('No Purchase Line selected.');
 
-                    SelectSalesOrderLine(PurchaseLine);
+                    SelectSalesOrderLine(PurchaseLine, Rec."B2B Sales Order No.");
                 end;
             }
 
@@ -71,11 +71,24 @@ pageextension 50102 PurchaseOrderSubformReqExt extends "Purchase Order Subform"
     }
 
 
-    local procedure SelectSalesOrderLine(PurchaseLine: Record "Purchase Line")
+    local procedure SelectSalesOrderLine(PurchaseLine: Record "Purchase Line"; OriginalLinedSONo: Code[20])
     var
         SalesLine: Record "Sales Line";
+        OriginalSalesLine: Record "Sales Line";
         SalesLineSelectionPage: Page "Sales Lines"; // Modify if necessary
     begin
+
+        // Set Original Sales Line filter
+        if OriginalLinedSONo <> '' then begin
+            OriginalSalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+            OriginalSalesLine.SetRange(Type, PurchaseLine.Type);
+            OriginalSalesLine.SetRange("No.", PurchaseLine."No.");
+            OriginalSalesLine.SetRange("Document No.", OriginalLinedSONo);
+            OriginalSalesLine.SetRange("B2B Purch. Order No.", PurchaseLine."Document No.");
+            OriginalSalesLine.SetRange("B2B Purch. Order Line No.", PurchaseLine."Line No.");
+        end;
+
+
         // Apply filters to match the Purchase Line criteria
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange(Type, PurchaseLine.Type);
@@ -85,6 +98,8 @@ pageextension 50102 PurchaseOrderSubformReqExt extends "Purchase Order Subform"
 
 
         if Page.RunModal(0, SalesLine) = Action::LookupOK then begin
+
+
             // Update Sales Line
             SalesLine."B2B Purch. Order No." := PurchaseLine."Document No.";
             SalesLine."B2B Purch. Order Line No." := PurchaseLine."Line No.";
@@ -94,7 +109,16 @@ pageextension 50102 PurchaseOrderSubformReqExt extends "Purchase Order Subform"
             PurchaseLine."B2B Sales Order No." := SalesLine."Document No.";
             PurchaseLine."B2B Sales Order Line No." := SalesLine."Line No.";
             PurchaseLine.Modify();
-        end;
+
+            // Remove link from original Sales Order Line
+            if OriginalLinedSONo <> '' then begin
+                if OriginalSalesLine.FindFirst() then begin
+                    OriginalSalesLine."B2B Purch. Order No." := '';
+                    OriginalSalesLine."B2B Purch. Order Line No." := 0;
+                    OriginalSalesLine.Modify();
+                end
+            end
+        end
     end;
 
 }
