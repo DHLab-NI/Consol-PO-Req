@@ -28,6 +28,22 @@ pageextension 50105 PostedPurchrcptSubformReqExt extends "Posted Purchase Rcpt. 
                 Caption = 'B2B Sales Order Line No.';
             }
         }
+        addafter("B2B Sales Order Line No.")
+        {
+            field("B2B Modified"; Rec."B2B Modified")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'B2B Modified';
+            }
+        }
+        addafter("B2B Modified")
+        {
+            field("B2B Modified Description"; Rec."B2B Modified Description")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'B2B Modified Description';
+            }
+        }
     }
 
     actions

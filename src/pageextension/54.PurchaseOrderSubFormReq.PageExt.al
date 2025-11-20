@@ -30,6 +30,25 @@ pageextension 50102 PurchaseOrderSubformReqExt extends "Purchase Order Subform"
                 Editable = false;       // Fisher EDI Mod       
             }
         }
+        addafter("B2B Sales Order Line No.")
+        {
+            field("B2B Modified"; Rec."B2B Modified")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'B2B Modified';
+                Editable = false;
+            }
+        }
+        addafter("B2B Modified")
+        {
+            field("B2B Modified Description"; Rec."B2B Modified Description")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'B2B Modified Description';
+                Editable = true;
+            }
+        }
+
     }
 
     actions

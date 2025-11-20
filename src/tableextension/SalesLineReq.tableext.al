@@ -16,26 +16,64 @@ tableextension 50104 SalesLineReqExt extends "Sales Line"
             Editable = True;       // Fisher EDI Mod       
         }
         // SGHTEST03 END - use separate fields to avoid auto purchase shipping on SO receipt
+        // Check if Qty changed on B2B Sales Order and update B2B PO
+        modify(Quantity)
+        {
+            trigger OnBeforeValidate()
+            var
+                PurchaseOrderLine: Record "Purchase Line";
+                ShouldModifyPurchaseOrderLine: Boolean;
+                B2BPOModText: Text;
+            begin
+                PurchaseOrderLine.Reset();
+                ShouldModifyPurchaseOrderLine :=
+                    (
+                        ("B2B Purch. Order Line No." <> 0) and
+                        (PurchaseOrderLine.Get(PurchaseOrderLine."Document Type"::Order, "B2B Purch. Order No.", "B2B Purch. Order Line No.")))
+                    ;
+                if ShouldModifyPurchaseOrderLine then begin
+                    LockTable();
+                    PurchaseOrderLine.LockTable();
+                    Message('PO %1 Qty. will be flagged as different from B2B SO', PurchaseOrderLine."Document No.");
+                    B2BPOModText :=
+                        'Qty changed to ' + format(Quantity) +
+                        ' on ' + PurchaseOrderLine."B2B Sales Order No.";
+                    PurchaseOrderLine."B2B Modified Description" := B2BPOModText;
+                    PurchaseOrderLine."B2B Modified" := true;
+                    PurchaseOrderLine.Modify();
+                end;
+            end;
+        }
+
     }
 
-    // SGH Delete Purchase Order information from related Sales Order as specified in B2B Sales Order fields on PO
-    // Code copied from PurchLineReq.TableExt 50103. If needed, you will need to change references to SO: lines to PO lines   
-    /*
     trigger OnDelete()
+    // SGH Delete Sales Order information from related Purchase Order as specified in B2B Purchase Order fields on SO
     var
-        SalesOrderLine: Record "Sales Line";
-        ShouldModifySalesOrderLine: Boolean;
+        PurchaseOrderLine: Record "Purchase Line";
+        ShouldModifyPurchaseOrderLine: Boolean;
+        B2BPOModText: Text;
     begin
-        ShouldModifySalesOrderLine := "B2B Sales Order Line No." <> 0;
-        if ShouldModifySalesOrderLine then begin
+        PurchaseOrderLine.Reset();
+        ShouldModifyPurchaseOrderLine :=
+            (
+                ("B2B Purch. Order Line No." <> 0) and
+                (PurchaseOrderLine.Get(PurchaseOrderLine."Document Type"::Order, "B2B Purch. Order No.", "B2B Purch. Order Line No.")))
+            ;
+        if ShouldModifyPurchaseOrderLine then begin
             LockTable();
-            SalesOrderLine.LockTable();
-            SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, "B2B Sales Order No.", "B2B Sales Order Line No.");
-            SalesOrderLine."Purchase Order No." := '';
-            SalesOrderLine."Purch. Order Line No." := 0;
-            SalesOrderLine.Modify();
+            PurchaseOrderLine.LockTable();
+            Message('PO %1 will be flagged as unlinked', PurchaseOrderLine."Document No.");
+            B2BPOModText :=
+                PurchaseOrderLine."B2B Sales Order No." +
+                ', line no. ' + format(PurchaseOrderLine."B2B Sales Order Line No.") +
+                ' deleted.';
+            PurchaseOrderLine."B2B Modified Description" := B2BPOModText;
+            PurchaseOrderLine."B2B Modified" := true;
+            PurchaseOrderLine."B2B Sales Order No." := '';
+            PurchaseOrderLine."B2B Sales Order Line No." := 0;
+            PurchaseOrderLine.Modify();
         end;
     end;
-*/
 
 }
