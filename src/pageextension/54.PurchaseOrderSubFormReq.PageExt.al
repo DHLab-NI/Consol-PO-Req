@@ -127,6 +127,8 @@ pageextension 50102 PurchaseOrderSubformReqExt extends "Purchase Order Subform"
             // Update Purchase Line
             PurchaseLine."B2B Sales Order No." := SalesLine."Document No.";
             PurchaseLine."B2B Sales Order Line No." := SalesLine."Line No.";
+            PurchaseLine."Shortcut Dimension 1 Code" := SalesLine."Shortcut Dimension 1 Code";
+            PurchaseLine."Shortcut Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
             PurchaseLine.Modify();
 
             // Remove link from original Sales Order Line

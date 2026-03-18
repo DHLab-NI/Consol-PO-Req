@@ -227,13 +227,13 @@ report 50102 "Get Sales Orders2"
         OnBeforeInsertReqWkshLine(ReqLine, SalesLine, SpecOrder);
         ReqLine.Insert();
         ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1(), ReqLine.RowID1(), true);
-        // SGH Remove dimensions from related PO START
-        /*if GetDim = GetDim::"Sales Line" then begin
+        // SGH Remove dimensions from related PO START - Temporarily reinstated for testing purposes
+        if GetDim = GetDim::"Sales Line" then begin
             ReqLine."Shortcut Dimension 1 Code" := SalesLine."Shortcut Dimension 1 Code";
             ReqLine."Shortcut Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
             ReqLine."Dimension Set ID" := SalesLine."Dimension Set ID";
             ReqLine.Modify();
-        end; */
+        end;
         // SGH Remove dimensions from related PO END
 
         OnAfterInsertReqWkshLine(ReqLine, SalesLine);
