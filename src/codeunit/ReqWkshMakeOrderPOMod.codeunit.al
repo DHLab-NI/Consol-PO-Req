@@ -757,8 +757,12 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         PurchOrderLine.Insert();
         OnAfterPurchOrderLineInsert(PurchOrderLine, ReqLine2, NextLineNo);
 
-        if ReqLine2.Reserve then
+        // Method 'BindToPurchase' is marked for removal. Reason: Replaced by procedure BindToTracking(). Tag: 25.0.
+        // Remove as not required by DHLab
+        /*if ReqLine2.Reserve then
             ReserveBindingOrderToPurch(PurchOrderLine, ReqLine2);
+            */
+        // Remove as not required by DHLab        
 
         //SGH Do for all lines regardless of Drop Shipment being set (comment out next line)  REF SGHTEST01 START
         //if PurchOrderLine."Drop Shipment" or PurchOrderLine."Special Order" then begin
@@ -1083,6 +1087,9 @@ codeunit 50104 "Req. Wksh.-Make Order2"
         end;
     end;
 
+    // Method 'BindToPurchase' is marked for removal. Reason: Replaced by procedure BindToTracking(). Tag: 25.0.
+    // Remove procedure as not required by DHLab
+    /*
     procedure ReserveBindingOrderToPurch(var PurchLine: Record "Purchase Line"; var ReqLine: Record "Requisition Line")
     var
         ProdOrderComp: Record "Prod. Order Component";
@@ -1156,6 +1163,8 @@ codeunit 50104 "Req. Wksh.-Make Order2"
 
         OnAfterReserveBindingOrderToPurch(PurchLine, ReqLine, ReservQty, ReservQtyBase, SuppressCommit);
     end;
+    */
+    // Remove as not required by DHLab
 
     procedure SetTryParam(TryReqTemplate: Record "Req. Wksh. Template"; TryLineCount: Integer; TryNextLineNo: Integer; TryPrevPurchCode: Code[10]; TryPrevAddToPONo: Code[20]; TryPrevSONo: Code[20]; TryPrevShipToCode: Code[10]; TryPrevLocationCode: Code[10]; TryOrderCounter: Integer; TryOrderLineCounter: Integer; var TryFailedReqLine: Record "Requisition Line"; var TempDocumentEntryNew: Record "Document Entry" temporary)
     begin

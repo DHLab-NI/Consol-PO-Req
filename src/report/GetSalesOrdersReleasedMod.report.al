@@ -217,7 +217,7 @@ report 50102 "Get Sales Orders2"
         ReqLine."Due Date" := SalesLine."Shipment Date";
         OnInsertReqWkshLineOnBeforeCalcEndingDate(ReqLine, SalesLine);
         ReqLine."Ending Date" :=
-            LeadTimeMgt.PlannedEndingDate(
+            LeadTimeMgt.GetPlannedEndingDate(
                 ReqLine."No.", ReqLine."Location Code", ReqLine."Variant Code", ReqLine."Due Date",
                 ReqLine."Vendor No.", ReqLine."Ref. Order Type");
         ReqLine.CalcStartingDate('');
